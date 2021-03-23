@@ -72,6 +72,7 @@ public class MenuManager : MonoBehaviour
         for (int i = 0; i < textResults.Length; i++)
         {
             textResults[i].text = $"Кол-во оценок {5-i}: {PlayerPrefs.GetInt($"Amount{5-i}")}";
+            textResults[i].fontStyle = FontStyle.Bold;
         }
     }
 }

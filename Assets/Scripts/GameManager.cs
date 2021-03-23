@@ -19,44 +19,59 @@ public class GameManager : MonoBehaviour
         if (StaticManager.s_CurrentLvl[0])
         {
             currentSign = sign[0];
-            num1 = RandomNumber();
-            num2 = RandomNumber();
+            num1 = RandomNumber(true);
+            num2 = RandomNumber(true);
             result = num1 + num2;
         }
         else if (StaticManager.s_CurrentLvl[1])
         {
             currentSign = sign[1];
-            num1 = RandomNumber();
-            num2 = RandomNumber();
+            num1 = RandomNumber(true);
+            num2 = RandomNumber(true);
             result = num1 - num2;
         }
         else if (StaticManager.s_CurrentLvl[2])
         {
             currentSign = sign[2];
-            num1 = RandomNumber();
-            num2 = RandomNumber();
+            num1 = RandomNumber(false);
+            num2 = RandomNumber(false);
             result = num1 * num2;
         }
         else if (StaticManager.s_CurrentLvl[3])
         {
             currentSign = sign[3];
-            num1 = RandomNumber();
-            num2 = RandomNumber();
+            num1 = RandomNumber(false);
+            num2 = RandomNumber(false);
             result = num1 / num2;
         }
         textExample.text = $"{num1} {currentSign} {num2} = ?";
         CalculateTextAnswers();
     }
-    private int RandomNumber()
+    private int RandomNumber(bool mode)
     {
         int tempInt;
-        if (StaticManager.s_Negative)
+        switch (mode)
         {
-            tempInt = Random.Range(-StaticManager.s_MaxTerm, StaticManager.s_MaxTerm);
-        }
-        else
-        {
-            tempInt = Random.Range(0, StaticManager.s_MaxTerm);
+            case true:
+                if (StaticManager.s_Negative)
+                {
+                    tempInt = Random.Range(-StaticManager.s_MaxTerm, StaticManager.s_MaxTerm + 1);
+                }
+                else
+                {
+                    tempInt = Random.Range(2, StaticManager.s_MaxTerm + 1);
+                }
+                break;
+            case false:
+                if (StaticManager.s_Negative)
+                {
+                    tempInt = Random.Range(-StaticManager.s_MaxFactor, StaticManager.s_MaxFactor + 1);
+                }
+                else
+                {
+                    tempInt = Random.Range(2, StaticManager.s_MaxFactor + 1);
+                }
+                break;
         }
         return tempInt;
     }
@@ -71,6 +86,14 @@ public class GameManager : MonoBehaviour
                 textAnswers[i].text = $"{tempInt}";
                 buttonAnswers[i].onClick.RemoveAllListeners();
                 buttonAnswers[i].onClick.AddListener(() => OnMouseDown(tempInt));
+                for (int j = 0; j < i; j++)
+                {
+                    if (textAnswers[j].text == textAnswers[i].text)
+                    {
+                        tempInt = result + Random.Range(-10, 11);
+                        textAnswers[i].text = $"{tempInt}";
+                    }
+                }
             }
             else
             {
@@ -86,14 +109,22 @@ public class GameManager : MonoBehaviour
         {
             buttonAnswers[i].interactable = false;
         }
-        yield return new WaitForSeconds(4.0f);
+        buttonAnswers[trueAnswer].image.color = new Color(0, 200, 0);
+        for (int i = 0; i < buttonAnswers.Length; i++)
+        {
+            if (i != trueAnswer)
+            {
+                buttonAnswers[i].image.color = new Color(200, 0, 0);
+            }
+        }
+        yield return new WaitForSeconds(3.0f);
         if (amountFailed + amountSuccessful < 20)
         {
             for (int i = 0; i < buttonAnswers.Length; i++)
             {
                 buttonAnswers[i].interactable = true;
+                buttonAnswers[i].image.color = new Color(255, 255, 255);
             }
-            buttonAnswers[trueAnswer].image.color = new Color(255, 255, 255);
             Start();
         }
         else
@@ -114,7 +145,6 @@ public class GameManager : MonoBehaviour
             textExample.text = $"Не верно!\n{num1} {currentSign} {num2} = {result}";
             amountFailed++;
         }
-        buttonAnswers[trueAnswer].image.color = new Color(0, 200, 0);
         StartCoroutine(Waiting());
     }
     private void CountMark()
